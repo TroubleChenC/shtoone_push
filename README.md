@@ -1,15 +1,23 @@
 # shtoone_push
 
-A new Flutter plugin project.
+整合国内手机推送服务（自用）
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/to/develop-plugins),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+### 小米
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+首先将 MiPush SDK 的 AAR 包如 MiPush_SDK_Client_xxx.aar 复制到 `project/android/app/libs/` 目录，然后在项目的`project/android/app/build.gradle.kts`中依赖：
 
+``` kotlin
+android {
+    repositories {
+      flatDir {
+          dirs("libs")
+      }
+    }
+}
+
+dependencies {
+    implementation(files("libs/MiPush_SDK_Client_6_0_1-C_3rd.aar"))
+}
+```

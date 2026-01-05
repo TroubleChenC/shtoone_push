@@ -64,7 +64,7 @@ dependencies {
     compileOnly files("libs/MiPush_SDK_Client_6_0_1-C_3rd.aar")
 
     // AndroidX dependencies
-    compileOnly "androidx.annotation:annotation:1.9.1"
+    compileOnly "androidx.annotation:annotation:1.8.0"
     compileOnly "androidx.core:core:1.12.0"
 
     // flutter依赖

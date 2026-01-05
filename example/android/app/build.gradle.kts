@@ -37,6 +37,16 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    repositories {
+        flatDir {
+            dirs("libs")
+        }
+    }
+}
+
+dependencies {
+    implementation(files("libs/MiPush_SDK_Client_6_0_1-C_3rd.aar"))
 }
 
 flutter {

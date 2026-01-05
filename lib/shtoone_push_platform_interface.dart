@@ -26,4 +26,30 @@ abstract class ShtoonePushPlatform extends PlatformInterface {
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
+
+  Future<String?> getBrand() {
+    throw UnimplementedError('getBrand() has not been implemented.');
+  }
+
+  void getMiToken({required String appId, required String appKey}) {
+    throw UnimplementedError('getMiToken() has not been implemented.');
+  }
+
+  Stream<String> getTokenStream() {
+    throw UnimplementedError('getTokenStream() has not been implemented.');
+  }
+
+  Stream<String> getTestStream() {
+    throw UnimplementedError('getTestStream() has not been implemented.');
+  }
+
+  void emitTestEvent() {
+    throw UnimplementedError('emitTestEvent() has not been implemented.');
+  }
+
+  Stream<Map<String, dynamic>> onNotificationOpenedApp() {
+    throw UnimplementedError(
+      'onNotificationOpenedApp() has not been implemented.',
+    );
+  }
 }

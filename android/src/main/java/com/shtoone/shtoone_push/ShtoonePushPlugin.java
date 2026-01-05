@@ -182,6 +182,9 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
         String msg = PushEventDispatcher.consumeCachedClick();
         result.success(msg);
         break;
+      case getBrand:
+        result.success(Build.BRAND);
+        break;
       default:
         result.notImplemented();
         break;
