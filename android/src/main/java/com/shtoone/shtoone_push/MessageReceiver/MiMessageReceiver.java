@@ -7,17 +7,14 @@ import android.util.Log;
 import com.shtoone.shtoone_push.Channel;
 import com.shtoone.shtoone_push.PushIntent;
 import com.shtoone.shtoone_push.PushEventDispatcher;
+import com.shtoone.shtoone_push.PushNotification;
 import com.xiaomi.mipush.sdk.ErrorCode;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.xiaomi.mipush.sdk.MiPushCommandMessage;
 import com.xiaomi.mipush.sdk.MiPushMessage;
 import com.xiaomi.mipush.sdk.PushMessageReceiver;
 
-import org.json.JSONObject;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class MiMessageReceiver extends PushMessageReceiver {
@@ -32,18 +29,6 @@ public class MiMessageReceiver extends PushMessageReceiver {
   private String mStartTime;
   private String mEndTime;
 
-  public static Map<String, Object> getMessagePayload(MiPushMessage message) {
-    Map<String, Object> payload = new HashMap<>();
-    payload.put("title", message.getTitle());
-    payload.put("content", message.getContent());
-    payload.put("extra", message.getExtra());
-    return payload;
-  }
-
-  public static String toJson(MiPushMessage message) {
-    return new JSONObject(getMessagePayload(message)).toString();
-  }
-
   @Override
   public void onNotificationMessageClicked(Context context, MiPushMessage message) {
     mMessage = message.getContent();
@@ -55,8 +40,8 @@ public class MiMessageReceiver extends PushMessageReceiver {
       mUserAccount = message.getUserAccount();
     }
 
-    String json = toJson(message);
-    PushIntent.notifyMainProcess(context, json, Channel.NOTIFICATION_CLICK);
+    PushNotification notification = new PushNotification(message.getTitle(), message.getContent(), message.getExtra());
+    PushIntent.notifyMainProcess(context, notification.toJson(), Channel.NOTIFICATION_CLICK);
   }
 
   @Override
@@ -71,8 +56,8 @@ public class MiMessageReceiver extends PushMessageReceiver {
       mUserAccount = message.getUserAccount();
     }
 
-    String json = toJson(message);
-    PushIntent.notifyMainProcess(context, json, Channel.NOTIFICATION_ARRIVED);
+    PushNotification notification = new PushNotification(message.getTitle(), message.getContent(), message.getExtra());
+    PushIntent.notifyMainProcess(context, notification.toJson(), Channel.NOTIFICATION_ARRIVED);
   }
 
   @Override

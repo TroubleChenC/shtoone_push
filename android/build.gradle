@@ -1,19 +1,6 @@
 group = "com.shtoone.shtoone_push"
 version = "1.0"
 
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
-}
-//获取flutter的sdk路径
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
-}
-
 buildscript {
     repositories {
         google()
@@ -47,27 +34,9 @@ android {
     defaultConfig {
         minSdk = 21
     }
-
-    testOptions {
-        unitTests.all {
-            testLogging {
-               events "passed", "skipped", "failed", "standardOut", "standardError"
-               outputs.upToDateWhen {false}
-               showStandardStreams = true
-            }
-        }
-    }
 }
 
 dependencies {
     // 小米sdk
     compileOnly files("libs/MiPush_SDK_Client_6_0_1-C_3rd.aar")
-
-    // AndroidX dependencies
-    compileOnly "androidx.annotation:annotation:1.8.0"
-    compileOnly "androidx.core:core:1.12.0"
-
-    // flutter依赖
-    compileOnly files("$flutterRoot/bin/cache/artifacts/engine/android-arm/flutter.jar")
-
 }

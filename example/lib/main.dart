@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:shtoone_push/shtoone_push.dart';
 
 void main() {
@@ -37,6 +37,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(useMaterial3: false),
       home: Scaffold(
         appBar: AppBar(title: const Text('Plugin example app')),
         body: Column(
@@ -56,6 +57,32 @@ class _MyAppState extends State<MyApp> {
                 ShtoonePush.getMiToken(appId: appId, appKey: appKey);
               },
               child: const Text('getToken'),
+            ),
+            Builder(
+              builder: (context) {
+                return ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return Dialog(
+                          insetPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                          ),
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            child: const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Text('Dialog'),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: const Text('dialog'),
+                );
+              },
             ),
           ],
         ),

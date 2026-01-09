@@ -1,7 +1,7 @@
 name: shtoone_push
-description: "A new Flutter plugin project."
+description: "Push service."
 version: 0.0.1
-homepage:
+homepage: "https://github.com/TroubleChenC/shtoone_push"
 
 environment:
   sdk: ^3.7.0

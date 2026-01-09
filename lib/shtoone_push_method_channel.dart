@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:shtoone_push/constants/constants.dart';
 
 import 'shtoone_push_platform_interface.dart';
 
@@ -11,9 +12,14 @@ class MethodChannelShtoonePush extends ShtoonePushPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('shtoone_push');
 
-  final tokenEventChannel = const EventChannel('token_event');
-  final testEventChannel = const EventChannel('test_event');
-  final notificationOpenEventChannel = const EventChannel('notification_click');
+  final tokenEventChannel = const EventChannel(Constants.getTokenEvent);
+  final testEventChannel = const EventChannel(Constants.testEvent);
+  final notificationOpenEventChannel = const EventChannel(
+    Constants.notificationClickEvent,
+  );
+  final notificationArrivedEventChannel = const EventChannel(
+    Constants.notificationArrivedEvent,
+  );
 
   @override
   Future<String?> getPlatformVersion() async {
@@ -51,6 +57,19 @@ class MethodChannelShtoonePush extends ShtoonePushPlatform {
   @override
   Stream<Map<String, dynamic>> onNotificationOpenedApp() {
     return notificationOpenEventChannel
+        .receiveBroadcastStream()
+        .map((dynamic event) => json.decode(event))
+        .cast<Map<String, dynamic>>();
+  }
+
+  @override
+  Future<String?> getInitialNotification() async {
+    return await methodChannel.invokeMethod<String>('');
+  }
+
+  @override
+  Stream<Map<String, dynamic>> onNotificationArrived() {
+    return notificationArrivedEventChannel
         .receiveBroadcastStream()
         .map((dynamic event) => json.decode(event))
         .cast<Map<String, dynamic>>();

@@ -52,4 +52,16 @@ abstract class ShtoonePushPlatform extends PlatformInterface {
       'onNotificationOpenedApp() has not been implemented.',
     );
   }
+
+  Future<String?> getInitialNotification() {
+    throw UnimplementedError(
+      'getInitialNotification() has not been implemented.',
+    );
+  }
+
+  Stream<Map<String, dynamic>> onNotificationArrived() {
+    throw UnimplementedError(
+      'onNotificationArrived() has not been implemented.',
+    );
+  }
 }

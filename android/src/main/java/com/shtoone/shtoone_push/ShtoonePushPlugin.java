@@ -29,11 +29,9 @@ import io.flutter.plugin.common.MethodChannel.Result;
 public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
   private MethodChannel channel;
 
-
-  private EventChannel tokenEventChannel; // 收到注册regId事件
-
   private EventChannel testEventChannel; // 测试
 
+  private EventChannel tokenEventChannel; // 收到注册regId事件
   private EventChannel notificationClickChannel; // 点击通知消息事件
   private EventChannel notificationArrivedChannel; // 消息到达事件
 
@@ -69,6 +67,7 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
 
       @Override
       public void onCancel(Object o) {
+        PushEventDispatcher.unbind(Channel.TOKEN);
       }
     });
 
@@ -82,6 +81,7 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
 
       @Override
       public void onCancel(Object o) {
+        PushEventDispatcher.unbind(Channel.NOTIFICATION_CLICK);
       }
     });
 
@@ -95,7 +95,7 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
 
       @Override
       public void onCancel(Object o) {
-
+        PushEventDispatcher.unbind(Channel.NOTIFICATION_ARRIVED);
       }
     });
 
@@ -110,7 +110,7 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
 
       @Override
       public void onCancel(Object o) {
-
+        PushEventDispatcher.unbind(Channel.TEST);
       }
     });
   }
