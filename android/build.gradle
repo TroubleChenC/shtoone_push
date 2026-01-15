@@ -5,6 +5,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://developer.huawei.com/repo/' }
     }
 
     dependencies {
@@ -16,6 +17,7 @@ rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://developer.huawei.com/repo/' }
     }
 }
 
@@ -37,6 +39,9 @@ android {
 }
 
 dependencies {
-    // 小米sdk
+    // 小米
     compileOnly files("libs/MiPush_SDK_Client_6_0_1-C_3rd.aar")
+
+    // 华为
+    implementation 'com.huawei.hms:push:6.13.0.300'
 }

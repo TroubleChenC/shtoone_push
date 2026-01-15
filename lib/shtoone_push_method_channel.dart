@@ -31,12 +31,28 @@ class MethodChannelShtoonePush extends ShtoonePushPlatform {
 
   @override
   Future<String?> getBrand() async {
-    return await methodChannel.invokeMethod<String>('getBrand');
+    return await methodChannel.invokeMethod<String>(Constants.getBrand);
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getDeviceInfo() async {
+    final deviceInfo = await methodChannel.invokeMethod(
+      Constants.getDeviceInfo,
+    );
+    return Map<String, dynamic>.from(deviceInfo);
   }
 
   @override
   void getMiToken({required String appId, required String appKey}) {
-    methodChannel.invokeMethod('getToken', {'appId': appId, 'appKey': appKey});
+    methodChannel.invokeMethod(Constants.getMiToken, {
+      'appId': appId,
+      'appKey': appKey,
+    });
+  }
+
+  @override
+  void getHuaweiToken(String appId) {
+    methodChannel.invokeMethod(Constants.getHuaweiToken, {'appId': appId});
   }
 
   @override
@@ -63,8 +79,14 @@ class MethodChannelShtoonePush extends ShtoonePushPlatform {
   }
 
   @override
-  Future<String?> getInitialNotification() async {
-    return await methodChannel.invokeMethod<String>('');
+  Future<Map<String, dynamic>?> getInitialNotification() async {
+    final jsonString = await methodChannel.invokeMethod<String>(
+      Constants.getInitialNotification,
+    );
+    if (jsonString == null) {
+      return null;
+    }
+    return Map<String, dynamic>.from(json.decode(jsonString));
   }
 
   @override

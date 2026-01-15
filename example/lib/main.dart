@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 
 import 'package:shtoone_push/shtoone_push.dart';
@@ -19,19 +20,44 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    // initPlatformState();
+    initPermission();
   }
 
   Future<void> initPlatformState() async {
     if (!mounted) return;
     ShtoonePush.getTokenStream.listen(
       (e) {
-        print(e);
+        print('token:$e');
       },
       onError: (error) {
         print((error as PlatformException).message);
       },
     );
+
+    final init = await ShtoonePush.getInitialNotification();
+    if (init != null) {
+      print(init);
+    } else {
+      print('no init notification');
+    }
+
+    // 消息监听
+    ShtoonePush.onNotificationArrived.listen((e) {
+      print('onNotificationArrived-------');
+      print(e);
+    });
+    ShtoonePush.onNotificationOpenedApp.listen((e) {
+      print('onNotificationOpenedApp-------');
+      print(e);
+    });
+  }
+
+  Future<void> initPermission() async {
+    if (!await Permission.notification.request().isGranted) {
+      print('no notification permission');
+      await openAppSettings();
+    }
   }
 
   @override
@@ -51,10 +77,16 @@ class _MyAppState extends State<MyApp> {
               child: const Text('getBrand'),
             ),
             ElevatedButton(
-              onPressed: () {
-                const appId = '2882303761520485640';
-                const appKey = '5362048551640';
-                ShtoonePush.getMiToken(appId: appId, appKey: appKey);
+              onPressed: () async {
+                final brand = await ShtoonePush.getBrand();
+                if (brand != null && brand.toLowerCase() == 'huawei') {
+                  const hwAppId = '116383695';
+                  ShtoonePush.getMiToken(appId: hwAppId, appKey: '-');
+                } else {
+                  const appId = '2882303761520485640';
+                  const appKey = '5362048551640';
+                  ShtoonePush.getMiToken(appId: appId, appKey: appKey);
+                }
               },
               child: const Text('getToken'),
             ),

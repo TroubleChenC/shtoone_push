@@ -2,12 +2,12 @@ package com.shtoone.shtoone_push.MessageReceiver;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.shtoone.shtoone_push.Channel;
+import com.shtoone.shtoone_push.constants.Channel;
 import com.shtoone.shtoone_push.PushIntent;
 import com.shtoone.shtoone_push.PushEventDispatcher;
 import com.shtoone.shtoone_push.PushNotification;
+import com.shtoone.shtoone_push.constants.LogUtils;
 import com.xiaomi.mipush.sdk.ErrorCode;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.xiaomi.mipush.sdk.MiPushCommandMessage;
@@ -31,6 +31,8 @@ public class MiMessageReceiver extends PushMessageReceiver {
 
   @Override
   public void onNotificationMessageClicked(Context context, MiPushMessage message) {
+    LogUtils.d("onNotificationMessageClicked");
+
     mMessage = message.getContent();
     if (!TextUtils.isEmpty(message.getTopic())) {
       mTopic = message.getTopic();
@@ -40,13 +42,14 @@ public class MiMessageReceiver extends PushMessageReceiver {
       mUserAccount = message.getUserAccount();
     }
 
-    PushNotification notification = new PushNotification(message.getTitle(), message.getContent(), message.getExtra());
+    PushNotification notification = PushNotification.fromMiPushMessage(message);
     PushIntent.notifyMainProcess(context, notification.toJson(), Channel.NOTIFICATION_CLICK);
   }
 
   @Override
   public void onNotificationMessageArrived(Context context, MiPushMessage message) {
-    Log.d("shtoone_push", "onNotificationMessageArrived");
+    LogUtils.d("onNotificationMessageArrived");
+
     mMessage = message.getContent();
     if (!TextUtils.isEmpty(message.getTopic())) {
       mTopic = message.getTopic();
@@ -56,7 +59,7 @@ public class MiMessageReceiver extends PushMessageReceiver {
       mUserAccount = message.getUserAccount();
     }
 
-    PushNotification notification = new PushNotification(message.getTitle(), message.getContent(), message.getExtra());
+    PushNotification notification = PushNotification.fromMiPushMessage(message);
     PushIntent.notifyMainProcess(context, notification.toJson(), Channel.NOTIFICATION_ARRIVED);
   }
 
@@ -97,6 +100,8 @@ public class MiMessageReceiver extends PushMessageReceiver {
 
   @Override
   public void onReceiveRegisterResult(Context context, MiPushCommandMessage message) {
+    LogUtils.d("onReceiveRegisterResult");
+
     String command = message.getCommand();
     List<String> arguments = message.getCommandArguments();
     String cmdArg1 = ((arguments != null && arguments.size() > 0) ? arguments.get(0) : null);

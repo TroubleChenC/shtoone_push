@@ -3,21 +3,23 @@ package com.shtoone.shtoone_push;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.shtoone.shtoone_push.constants.Channel;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.flutter.plugin.common.EventChannel;
 
 public class PushEventDispatcher {
-  private static volatile String cachedClick;
+  private static PushNotification initPushNotification;
 
-  public static void cacheClick(String message) {
-    cachedClick = message;
+  public static void setInitPushNotification(PushNotification message) {
+    initPushNotification = message;
   }
 
-  public static String consumeCachedClick() {
-    String tmp = cachedClick;
-    cachedClick = null;
+  public static PushNotification getInitNotification() {
+    PushNotification tmp = initPushNotification;
+//    initPushNotification = null;
     return tmp;
   }
 

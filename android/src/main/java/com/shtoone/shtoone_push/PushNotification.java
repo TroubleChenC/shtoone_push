@@ -1,5 +1,15 @@
 package com.shtoone.shtoone_push;
 
+import android.content.Intent;
+import android.os.Bundle;
+
+import com.huawei.hms.push.RemoteMessage;
+import com.shtoone.shtoone_push.Utils.MapUtils;
+import com.shtoone.shtoone_push.Utils.Utils;
+import com.shtoone.shtoone_push.constants.Brand;
+import com.xiaomi.mipush.sdk.MiPushMessage;
+import com.xiaomi.mipush.sdk.PushMessageHelper;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,9 +20,9 @@ import java.util.Map;
 public class PushNotification {
   private final String title;
   private final String content;
-  private final Map<String, String> extraData;
+  private final Map<String, Object> extraData;
 
-  public PushNotification(String title, String content, Map<String, String> extraData) {
+  public PushNotification(String title, String content, Map<String, Object> extraData) {
     this.title = title != null ? title : "";
     this.content = content != null ? content : "";
     this.extraData = extraData != null ? extraData : new HashMap<>();
@@ -26,9 +36,9 @@ public class PushNotification {
     String title = valueOf(map.get("title"));
     String content = valueOf(map.get("content"));
 
-    Map<String, String> extra =
+    Map<String, Object> extra =
         map.get("extraData") instanceof Map
-            ? (Map<String, String>) map.get("extraData")
+            ? (Map<String, Object>) map.get("extraData")
             : new HashMap<>();
 
     return new PushNotification(title, content, extra);
@@ -42,6 +52,40 @@ public class PushNotification {
     } catch (Exception e) {
       return new PushNotification("", "", null);
     }
+  }
+
+  public static PushNotification fromIntent(Intent intent) {
+    PushNotification pn = null;
+    Brand brand = Utils.getBrand();
+    if (brand == Brand.XIAOMI) {
+      MiPushMessage msg = (MiPushMessage) intent.getSerializableExtra(PushMessageHelper.KEY_MESSAGE);
+      if (msg == null) return null;
+      pn = PushNotification.fromMiPushMessage(msg);
+    } else if (brand == Brand.HUAWEI) {
+      Bundle bundle = intent.getExtras();
+      if (bundle == null) return null;
+      Map<String, Object> extras = MapUtils.toMap(Utils.convertJSONObject(bundle));
+      pn = new PushNotification("huawei title", "huawei content", extras);
+    }
+
+    return pn;
+  }
+
+  public static PushNotification fromMiPushMessage(MiPushMessage message) {
+    try {
+      JSONObject obj = new JSONObject(message.getContent());
+      Map<String, Object> map = jsonToMap(obj);
+      return new PushNotification(message.getTitle(), message.getDescription(), map);
+    } catch (Exception e) {
+      return new PushNotification("", "", null);
+    }
+  }
+
+  public static PushNotification fromHuaweiPushMessage(RemoteMessage message) {
+    RemoteMessage.Notification notification = message.getNotification();
+    if (notification == null) return null;
+    Map<String, Object> map = new HashMap<>(message.getDataOfMap());
+    return new PushNotification(notification.getTitle(), notification.getBody(), map);
   }
 
   /* ===================== 导出 ===================== */
@@ -68,7 +112,7 @@ public class PushNotification {
     return content;
   }
 
-  public Map<String, String> getExtraData() {
+  public Map<String, Object> getExtraData() {
     return extraData;
   }
 

@@ -1,15 +1,27 @@
 package com.shtoone.shtoone_push;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+import com.huawei.hms.push.RemoteMessage;
+import com.shtoone.shtoone_push.Utils.HwUtils;
+import com.shtoone.shtoone_push.Utils.MapUtils;
+import com.shtoone.shtoone_push.Utils.Utils;
+import com.shtoone.shtoone_push.constants.Brand;
+import com.shtoone.shtoone_push.constants.Channel;
+import com.shtoone.shtoone_push.constants.LogUtils;
+import com.shtoone.shtoone_push.constants.Method;
 import com.xiaomi.mipush.sdk.MiPushClient;
+import com.xiaomi.mipush.sdk.MiPushMessage;
+import com.xiaomi.mipush.sdk.PushMessageHelper;
 
 import org.json.JSONObject;
 
@@ -18,6 +30,8 @@ import java.util.Map;
 
 import io.flutter.Log;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
@@ -25,8 +39,10 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-/** ShtoonePushPlugin */
-public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
+/**
+ * ShtoonePushPlugin
+ */
+public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware {
   private MethodChannel channel;
 
   private EventChannel testEventChannel; // 测试
@@ -39,16 +55,44 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
 
   private Context context;
 
+  private Activity activity;
+
+  private NotificationIntentListener notificationIntentListener;
+
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-    channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "shtoone_push");
+    channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), LogUtils.tag);
     channel.setMethodCallHandler(this);
 
     this.context = flutterPluginBinding.getApplicationContext();
 
+    notificationIntentListener = new NotificationIntentListener();
+
     registerPushReceiver(context);
 
     setStreamHandlers(flutterPluginBinding.getBinaryMessenger());
+  }
+
+  @Override
+  public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+    LogUtils.d("onAttachedToActivity");
+    this.activity = binding.getActivity();
+    binding.addOnNewIntentListener(this.notificationIntentListener);
+    Intent startupIntent = activity.getIntent();
+    if (startupIntent == null) return;
+    PushNotification initNotification = PushNotification.fromIntent(startupIntent);
+    if (initNotification == null) return;
+
+    PushEventDispatcher.setInitPushNotification(initNotification);
+  }
+
+  @Override
+  public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+    LogUtils.d("onReattachedToActivityForConfigChanges");
+
+    this.activity = binding.getActivity();
+//    binding.addOnNewIntentListener(this.notificationIntentListener);
+//    this.notificationIntentListener.handleIntent(activity.getIntent());
   }
 
   // 设置事件监听
@@ -129,13 +173,8 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
           try {
             Channel channel = Channel.valueOf(type);
             PushEventDispatcher.send(channel, json);
-
-            // 如果是点击通知消息打开的app，缓存下这个消息，方便app打开后可以获取到唤醒自己的那条消息
-            if (channel == Channel.NOTIFICATION_CLICK) {
-              PushEventDispatcher.cacheClick(json);
-            }
           } catch (IllegalArgumentException e) {
-            Log.e("shtoone_push", "unknown intent type : " + type);
+            Log.e(LogUtils.tag, "unknown intent type : " + type);
           }
         }
       };
@@ -151,7 +190,7 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
         ContextCompat.registerReceiver(context, pushReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
       }
     } catch (Exception e) {
-      Log.e("shtoone_push", e.toString());
+      Log.e(LogUtils.tag, e.toString());
     }
 
   }
@@ -159,11 +198,15 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     switch (Method.valueOf(call.method)) {
-      case getToken:
+      case getHuaweiToken:
+        String hwAppId = call.argument("appId");
+        HwUtils.getToken(context, hwAppId);
+        break;
+      case getMiToken:
         String appId = call.argument("appId");
         String appKey = call.argument("appKey");
         if (appId == null || appKey == null) {
-          Log.e("shtoone_push", "getToken: no param appId or appKey");
+          Log.e(LogUtils.tag, "getMiToken: no parameter appId or appKey");
           return;
         }
         MiPushClient.registerPush(context, appId, appKey);
@@ -179,16 +222,35 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler {
         PushEventDispatcher.send(Channel.NOTIFICATION_CLICK, new JSONObject(obj).toString());
         break;
       case getInitialNotification: // 获取点击通知打开app的消息
-        String msg = PushEventDispatcher.consumeCachedClick();
-        result.success(msg);
+        PushNotification init = PushEventDispatcher.getInitNotification();
+        if (init != null) {
+          LogUtils.d(init.toJson());
+        }
+        result.success(init == null ? null : init.toJson());
         break;
       case getBrand:
-        result.success(Build.BRAND);
+        result.success(Build.MANUFACTURER);
+        break;
+      case getDeviceInfo:
+        Map<String, String> device = new HashMap<>();
+        device.put("brand", Build.BRAND);
+        device.put("manufacturer", Build.MANUFACTURER);
+        result.success(device);
         break;
       default:
         result.notImplemented();
         break;
     }
+  }
+
+  @Override
+  public void onDetachedFromActivity() {
+    this.activity = null;
+  }
+
+  @Override
+  public void onDetachedFromActivityForConfigChanges() {
+    this.activity = null;
   }
 
   @Override

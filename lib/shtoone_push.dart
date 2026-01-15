@@ -6,9 +6,18 @@ class ShtoonePush {
     return ShtoonePushPlatform.instance.getBrand();
   }
 
-  /// 注册小米regId
+  /// 获取设备信息
+  static Future<Map<String, dynamic>?> getDeviceInfo() {
+    return ShtoonePushPlatform.instance.getDeviceInfo();
+  }
+
+  /// 注册小米regId,注册结果需要监听getTokenStream获取
   static void getMiToken({required String appId, required String appKey}) {
     ShtoonePushPlatform.instance.getMiToken(appId: appId, appKey: appKey);
+  }
+
+  static void getHuaweiToken(String appId) {
+    ShtoonePushPlatform.instance.getHuaweiToken(appId);
   }
 
   /// 获取/注册token事件stream
@@ -22,7 +31,7 @@ class ShtoonePush {
   }
 
   /// 获取点击打开app的那条消息，一般用于app冷启动获取消息
-  static Future<String?> getInitialNotification() {
+  static Future<Map<String, dynamic>?> getInitialNotification() {
     return ShtoonePushPlatform.instance.getInitialNotification();
   }
 

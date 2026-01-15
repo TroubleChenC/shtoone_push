@@ -31,8 +31,16 @@ abstract class ShtoonePushPlatform extends PlatformInterface {
     throw UnimplementedError('getBrand() has not been implemented.');
   }
 
+  Future<Map<String, dynamic>?> getDeviceInfo() {
+    throw UnimplementedError('getDeviceInfo() has not been implemented.');
+  }
+
   void getMiToken({required String appId, required String appKey}) {
     throw UnimplementedError('getMiToken() has not been implemented.');
+  }
+
+  void getHuaweiToken(String appId) {
+    throw UnimplementedError('getHuaweiToken() has not been implemented.');
   }
 
   Stream<String> getTokenStream() {
@@ -53,7 +61,7 @@ abstract class ShtoonePushPlatform extends PlatformInterface {
     );
   }
 
-  Future<String?> getInitialNotification() {
+  Future<Map<String, dynamic>?> getInitialNotification() {
     throw UnimplementedError(
       'getInitialNotification() has not been implemented.',
     );

@@ -1,4 +1,4 @@
-package com.shtoone.shtoone_push;
+package com.shtoone.shtoone_push.constants;
 
 public enum Channel {
   TEST("test_event"),

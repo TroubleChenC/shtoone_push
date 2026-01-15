@@ -3,6 +3,8 @@ package com.shtoone.shtoone_push;
 import android.content.Context;
 import android.content.Intent;
 
+import com.shtoone.shtoone_push.constants.Channel;
+
 public final class PushIntent {
 
   public static final String ACTION_PUSH_EVENT =
