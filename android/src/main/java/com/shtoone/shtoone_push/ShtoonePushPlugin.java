@@ -6,24 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import com.huawei.hms.push.RemoteMessage;
 import com.shtoone.shtoone_push.Utils.HwUtils;
-import com.shtoone.shtoone_push.Utils.MapUtils;
-import com.shtoone.shtoone_push.Utils.Utils;
-import com.shtoone.shtoone_push.constants.Brand;
 import com.shtoone.shtoone_push.constants.Channel;
 import com.shtoone.shtoone_push.constants.LogUtils;
 import com.shtoone.shtoone_push.constants.Method;
 import com.xiaomi.mipush.sdk.MiPushClient;
-import com.xiaomi.mipush.sdk.MiPushMessage;
-import com.xiaomi.mipush.sdk.PushMessageHelper;
-
-import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +66,16 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler, Acti
 
   @Override
   public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
-    LogUtils.d("onAttachedToActivity");
+    handleClickNotificationIntent(binding);
+  }
+
+  @Override
+  public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+    handleClickNotificationIntent(binding);
+  }
+
+  // 处理推送通知Intent
+  private void handleClickNotificationIntent(@NonNull ActivityPluginBinding binding) {
     this.activity = binding.getActivity();
     binding.addOnNewIntentListener(this.notificationIntentListener);
     Intent startupIntent = activity.getIntent();
@@ -84,15 +84,6 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler, Acti
     if (initNotification == null) return;
 
     PushEventDispatcher.setInitPushNotification(initNotification);
-  }
-
-  @Override
-  public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
-    LogUtils.d("onReattachedToActivityForConfigChanges");
-
-    this.activity = binding.getActivity();
-//    binding.addOnNewIntentListener(this.notificationIntentListener);
-//    this.notificationIntentListener.handleIntent(activity.getIntent());
   }
 
   // 设置事件监听
@@ -210,16 +201,6 @@ public class ShtoonePushPlugin implements FlutterPlugin, MethodCallHandler, Acti
           return;
         }
         MiPushClient.registerPush(context, appId, appKey);
-        break;
-      case emit: // 测试事件发送
-        PushEventDispatcher.send(Channel.TEST, "dispatcher event");
-        PushEventDispatcher.sendError(Channel.TEST, "-1", "error test", "error detail");
-
-        Map<String, Object> obj = new HashMap<>();
-        obj.put("name", "chen");
-        obj.put("age", 18);
-        obj.put("gender", "male");
-        PushEventDispatcher.send(Channel.NOTIFICATION_CLICK, new JSONObject(obj).toString());
         break;
       case getInitialNotification: // 获取点击通知打开app的消息
         PushNotification init = PushEventDispatcher.getInitNotification();

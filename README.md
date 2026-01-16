@@ -19,3 +19,32 @@ dependencies {
 ```
  -keep class com.shtoone.shtoone_push.MessageReceiver.MiMessageReceiver {*;}
 ```
+
+
+### 华为
+1. 将“agconnect-services.json”文件拷贝到android目录下`project/android/app`;
+2. 添加HUAWEI AGC插件以及Maven代码库`project/android/build.gradle.kts`:
+    ```kotlin
+    buildscript {
+        repositories {
+            google()
+            mavenCentral()
+            maven(url = "https://developer.huawei.com/repo/")
+        }
+        dependencies {
+            classpath ("com.android.tools.build:gradle:8.7.0")
+            classpath("com.huawei.agconnect:agcp:1.9.1.304")
+        }
+    }
+    ```
+3. 应用HUAWEI AGC插件`project/android/app/build.gradle.kts`:
+    ```
+   plugins {
+      id("com.android.application")
+      id("kotlin-android")
+      id("dev.flutter.flutter-gradle-plugin")
+   
+      // 添加如下配置
+      id ("com.huawei.agconnect")
+    }
+   ```
